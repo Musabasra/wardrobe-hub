@@ -1,0 +1,7 @@
+{
+  "name": "Wardrobe Hub",
+  "description": "A minimalist editorial social fashion platform for digital wardrobes, outfit creation, and community inspiration.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
