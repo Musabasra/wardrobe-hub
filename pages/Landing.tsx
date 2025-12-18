@@ -1,113 +1,123 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowRight, Sparkles, Plus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const highlights = [
-  { id: 1, img: 'https://picsum.photos/seed/fashion1/800/1000', handle: '@elena_v' },
-  { id: 2, img: 'https://picsum.photos/seed/fashion2/800/1000', handle: '@marcus_k' },
-  { id: 3, img: 'https://picsum.photos/seed/fashion3/800/1000', handle: '@sophia_style' },
-  { id: 4, img: 'https://picsum.photos/seed/fashion4/800/1000', handle: '@neutral_vibes' },
+  { id: 1, img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop', handle: '@elena_v' },
+  { id: 2, img: 'https://images.unsplash.com/photo-1539109132381-31a1ba972f5d?q=80&w=1000&auto=format&fit=crop', handle: '@marcus_k' },
+  { id: 3, img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop', handle: '@sophia_style' },
+  { id: 4, img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop', handle: '@neutral_vibes' },
+  { id: 5, img: 'https://images.unsplash.com/photo-1529139513055-07f9127ef3b0?q=80&w=1000&auto=format&fit=crop', handle: '@street_arch' },
+  { id: 6, img: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?q=80&w=1000&auto=format&fit=crop', handle: '@luxe_minimal' },
 ];
 
 const Landing: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center text-center px-6">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop" 
-            alt="Hero Background"
-            className="w-full h-full object-cover opacity-20 grayscale"
-          />
+    <div className="bg-[#F5F5DC]">
+      {/* Hero Section - Matching Figma Header */}
+      <section className="relative h-[85vh] px-10 pt-10 flex flex-col items-center justify-center border-b border-black/5">
+        <div className="absolute top-10 w-full px-10 flex justify-between text-[10px] uppercase tracking-[0.3em] font-bold text-black/40">
+          <span>Digital Closet Solution</span>
+          <span>Public Social Platform</span>
         </div>
-        <div className="relative z-10 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-6xl md:text-8xl editorial-font italic leading-tight mb-8">
-              Curate Your <br /> Digital Style
-            </h1>
-            <p className="text-lg md:text-xl font-light mb-12 text-neutral-700 max-w-xl mx-auto">
-              A minimalist space to digitize your wardrobe, create stunning outfits, and inspire a global community.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                to="/auth" 
-                className="px-10 py-4 bg-black text-white rounded-full flex items-center space-x-2 group hover:pr-8 transition-all"
-              >
-                <span>Join Community</span>
-                <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-              </Link>
-              <Link 
-                to="/feed" 
-                className="px-10 py-4 border border-black rounded-full hover:bg-black hover:text-[#F5F5DC] transition-all"
-              >
-                Explore Feed
-              </Link>
-            </div>
-          </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center z-10"
+        >
+          <h1 className="text-7xl md:text-[120px] editorial-font italic tracking-tighter leading-[0.85] mb-10">
+            Style <br /> Without <br /> Boundaries
+          </h1>
+          <p className="max-w-md mx-auto text-sm font-medium leading-relaxed mb-12 uppercase tracking-wide opacity-60">
+            The world's first public-driven digital wardrobe. Style your fits, share your closet, and inspire the public.
+          </p>
+          <div className="flex justify-center gap-6">
+            <button 
+              onClick={() => navigate('/auth')}
+              className="px-12 py-4 bg-black text-white rounded-full text-xs font-bold tracking-widest uppercase hover:scale-105 transition-all shadow-xl shadow-black/20"
+            >
+              Join Community
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Floating Decorative Elements from your Design */}
+        <div className="absolute bottom-10 left-10 flex items-center gap-4 opacity-30">
+          <div className="w-12 h-[1px] bg-black"></div>
+          <span className="text-[10px] font-bold uppercase tracking-widest">Scroll to Explore</span>
         </div>
       </section>
 
-      {/* Highlights Section */}
-      <section className="py-24 bg-white/50 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
-            <div>
-              <span className="flex items-center text-sm uppercase tracking-widest text-neutral-400 mb-4">
-                <Sparkles size={16} className="mr-2" /> Community
-              </span>
-              <h2 className="text-4xl md:text-5xl editorial-font italic">Trending Highlights</h2>
-            </div>
-            <Link to="/feed" className="text-sm font-medium border-b border-black pb-1">
-              View all fit pics
-            </Link>
+      {/* Community Highlights - Grid Match */}
+      <section className="py-24 px-10">
+        <div className="flex justify-between items-end mb-16">
+          <div>
+            <h2 className="text-5xl editorial-font italic mb-2 leading-none">Community Highlights</h2>
+            <p className="text-xs uppercase tracking-widest font-bold opacity-40">Top styles from the public</p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {highlights.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative"
-              >
-                <div className="aspect-[3/4] overflow-hidden rounded-lg">
-                  <img 
-                    src={item.img} 
-                    alt="Fit pic" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0"
-                  />
-                </div>
-                <div className="mt-4 flex justify-between items-center px-2">
-                  <span className="text-sm font-medium">{item.handle}</span>
-                  <button className="text-xs uppercase tracking-wider text-neutral-400">View Pieces</button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-32 px-6 bg-black text-[#F5F5DC]">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl editorial-font mb-12 italic">
-            Your closet, <br /> reimagined.
-          </h2>
-          <Link 
-            to="/wardrobe" 
-            className="inline-block px-12 py-5 bg-[#F5F5DC] text-black rounded-full text-lg font-medium hover:scale-105 transition-transform"
-          >
-            Start Digitize Now
+          <Link to="/feed" className="text-xs font-bold uppercase tracking-[0.2em] border-b-2 border-black pb-1">
+            View All
           </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {highlights.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05 }}
+              className="group cursor-pointer"
+            >
+              <div className="relative aspect-[4/5] overflow-hidden bg-white border border-black/5 shadow-sm group-hover:shadow-xl transition-all duration-500">
+                <img 
+                  src={item.img} 
+                  alt="Fashion fit" 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale hover:grayscale-0"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-[#F5F5DC] text-[10px] font-bold uppercase tracking-[0.3em]">View Pieces</span>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+                <span>{item.handle}</span>
+                <span className="opacity-30">#STYLEHUB</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Join Section - Exactly as seen in Figma */}
+      <section className="py-24 border-t border-black/5 px-10 flex flex-col md:flex-row gap-20 items-center">
+        <div className="md:w-1/2">
+          <h2 className="text-6xl md:text-8xl editorial-font leading-[0.9] mb-10">
+            Join Our <br /> Fashion <br /> Community
+          </h2>
+          <p className="text-sm font-medium leading-loose opacity-60 mb-10 max-w-sm">
+            Digitize your current closet, mix and match with pieces from around the world, and get styling suggestions from top curators.
+          </p>
+          <button 
+            onClick={() => navigate('/auth')}
+            className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest group"
+          >
+            <span>Start your collection now</span>
+            <div className="p-3 bg-black text-white rounded-full group-hover:translate-x-3 transition-all">
+              <ArrowRight size={16} />
+            </div>
+          </button>
+        </div>
+        <div className="md:w-1/2 aspect-[4/5] bg-neutral-200 overflow-hidden shadow-2xl">
+          <img 
+            src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop" 
+            className="w-full h-full object-cover grayscale"
+            alt="Community"
+          />
         </div>
       </section>
     </div>
