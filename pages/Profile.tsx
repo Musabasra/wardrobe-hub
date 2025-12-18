@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Grid, Bookmark, Tag, X, LogOut, Shield, Bell, Camera, UserPlus, Heart, MessageCircle } from 'lucide-react';
+import { Settings, Grid, Bookmark, Tag, X, LogOut, Shield, Bell, Camera, UserPlus, Heart, MessageCircle, ShoppingBag, Scissors } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
@@ -17,7 +17,8 @@ const Profile: React.FC = () => {
     followingCount: 280
   });
 
-  const [activeTab, setActiveTab] = useState<'fits' | 'saved' | 'tagged'>('fits');
+  // UPDATED: Added 'pieces' to the activeTab type
+  const [activeTab, setActiveTab] = useState<'fits' | 'saved' | 'tagged' | 'pieces'>('fits');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [connectionsModal, setConnectionsModal] = useState<{ open: boolean, type: 'Followers' | 'Following' }>({ open: false, type: 'Followers' });
@@ -25,6 +26,14 @@ const Profile: React.FC = () => {
 
   // Mock data
   const posts = [1, 2, 3, 4, 5, 6];
+  
+  // NEW: Mock data for individual wardrobe pieces
+  const myPieces = [
+    { id: 101, img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500" },
+    { id: 102, img: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500" },
+    { id: 103, img: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500" },
+  ];
+
   const mockUsers = [
     { id: 1, name: 'Alex Rivera', handle: '@arivera', img: 'https://i.pravatar.cc/150?u=1' },
     { id: 2, name: 'Jordan Case', handle: '@j_case', img: 'https://i.pravatar.cc/150?u=2' },
@@ -99,9 +108,12 @@ const Profile: React.FC = () => {
           </div>
         </header>
 
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs - ADDED "My Pieces" */}
         <div className="flex justify-center gap-16 mb-12 border-t border-black/5 pt-4">
           <button onClick={() => setActiveTab('fits')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'fits' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Grid size={14} /> My Fits</button>
+          
+          <button onClick={() => setActiveTab('pieces')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'pieces' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><ShoppingBag size={14} /> My Pieces</button>
+
           <button onClick={() => setActiveTab('saved')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'saved' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Bookmark size={14} /> Saved</button>
           <button onClick={() => setActiveTab('tagged')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'tagged' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Tag size={14} /> Tagged</button>
         </div>
@@ -122,6 +134,20 @@ const Profile: React.FC = () => {
                   <div className="flex items-center gap-1"><MessageCircle size={18} fill="white" /> <span className="text-xs font-bold">4</span></div>
                 </div>
               </motion.div>
+            ))
+          ) : activeTab === 'pieces' ? (
+            myPieces.map((piece) => (
+              <div key={piece.id} className="aspect-[3/4] bg-white border border-black/5 group relative overflow-hidden cursor-pointer">
+                <img src={piece.img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                   <button 
+                    onClick={() => navigate('/lab')}
+                    className="bg-white text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-[#F5F5DC] transition-colors"
+                   >
+                     <Scissors size={12}/> Style in Lab
+                   </button>
+                </div>
+              </div>
             ))
           ) : (
             <div className="col-span-3 py-20 text-center opacity-20 uppercase tracking-[0.3em] text-[10px] font-bold">No {activeTab} posts yet</div>

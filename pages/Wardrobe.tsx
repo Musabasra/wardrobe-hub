@@ -1,151 +1,116 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Camera, X, Check, UploadCloud } from 'lucide-react';
-
-// Using a simplified Category type to ensure it works without external files
-const categories = ['All', 'Tops', 'Bottoms', 'Outerwear', 'Shoes', 'Accessories'];
-
-const INITIAL_WARDROBE = [
-  { id: '1', name: 'Cotton Boxy Tee', category: 'Tops', imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500', isPublic: true },
-  { id: '2', name: 'Raw Denim Jeans', category: 'Bottoms', imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500', isPublic: true },
-  { id: '3', name: 'Wool Overcoat', category: 'Outerwear', imageUrl: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=500', isPublic: true },
-  { id: '4', name: 'Leather Chelsea Boots', category: 'Shoes', imageUrl: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=500', isPublic: true },
-  { id: '5', name: 'Linen Button Down', category: 'Tops', imageUrl: 'https://images.unsplash.com/photo-1596755094514-f87034a2612d?w=500', isPublic: true },
-  { id: '6', name: 'Tailored Trousers', category: 'Bottoms', imageUrl: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500', isPublic: true },
-];
+import { Filter, Search, Plus, ShoppingBag, Heart, X, Scissors } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Wardrobe: React.FC = () => {
+  const navigate = useNavigate();
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [filter, setFilter] = useState('All');
-  const [search, setSearch] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredItems = INITIAL_WARDROBE.filter(item => {
-    const matchesFilter = filter === 'All' || item.category === filter;
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setIsUploading(true);
-      // Simulate AI Background Removal delay
-      setTimeout(() => {
-        setIsUploading(false);
-        alert("Image uploaded! In a full build, the background would now be removed via API.");
-      }, 2000);
-    }
-  };
+  const categories = ['All', 'Outerwear', 'Tops', 'Bottoms', 'Footwear', 'Accessories'];
+  
+  // Simulated Public Data
+  const publicItems = [
+    { id: 1, name: "Vintage Oversized Coat", brand: "Archive", category: "Outerwear", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500", uploader: "@style_curator" },
+    { id: 2, name: "Raw Denim Selvedge", brand: "Durable", category: "Bottoms", image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500", uploader: "@denim_head" },
+    { id: 3, name: "Cashmere Turtleneck", brand: "Softness", category: "Tops", image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500", uploader: "@minimalist" },
+  ];
 
   return (
-    <div className="bg-[#F5F5DC] min-h-screen">
-      <div className="max-w-7xl mx-auto px-10 py-16">
-        
-        {/* Editorial Header */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8 border-b border-black/5 pb-12">
-          <div>
-            <h1 className="text-6xl editorial-font italic tracking-tighter mb-4">Digital Wardrobe</h1>
-            <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold opacity-40">
-              <span>Your Curated Collection</span>
-              <div className="w-8 h-[1px] bg-black"></div>
-              <span>{INITIAL_WARDROBE.length} PIECES TOTAL</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              className="hidden" 
-              accept="image/*"
-            />
-            <button 
-              onClick={handleUploadClick}
-              className="flex items-center gap-3 px-8 py-4 bg-white border border-black/10 rounded-none text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all shadow-sm"
-            >
-              <Camera size={16} />
-              {isUploading ? "Processing..." : "AI Digitize"}
-            </button>
-            <button className="p-4 bg-black text-white rounded-none hover:opacity-80 transition-all">
-              <Plus size={20} />
-            </button>
-          </div>
-        </header>
-
-        {/* Categories & Search Toolbar */}
-        <div className="flex flex-col lg:flex-row items-center justify-between mb-16 gap-8">
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 lg:pb-0 no-scrollbar w-full lg:w-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`whitespace-nowrap px-8 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${
-                  filter === cat ? 'bg-black text-white border-black' : 'bg-transparent text-black/40 border-transparent hover:border-black/10'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative w-full lg:w-72">
-            <Search className="absolute left-0 top-1/2 -translate-y-1/2 opacity-20" size={16} />
-            <input 
-              type="text"
-              placeholder="SEARCH PIECES..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-4 py-2 bg-transparent border-b border-black/10 text-[10px] font-bold tracking-widest uppercase outline-none focus:border-black transition-all"
-            />
-          </div>
+    <div className="min-h-screen bg-[#F5F5DC] pt-12 pb-20 px-8">
+      {/* Page Title & Search */}
+      <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+        <div>
+          <h1 className="text-6xl editorial-font italic tracking-tighter mb-4">Global Archive.</h1>
+          <p className="text-[10px] uppercase font-bold tracking-[0.3em] opacity-40">Explore every piece in the community wardrobe</p>
         </div>
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-20" size={16} />
+            <input type="text" placeholder="SEARCH PIECES..." className="w-full bg-white border border-black/5 py-3 pl-10 pr-4 text-[9px] font-bold uppercase tracking-widest outline-none" />
+          </div>
+          <button className="bg-black text-white p-3 hover:bg-neutral-800 transition-all">
+            <Filter size={18} />
+          </button>
+        </div>
+      </div>
 
-        {/* Wardrobe Grid - Match Figma Clean Cards */}
-        <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16">
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="group cursor-pointer"
-              >
-                <div className="aspect-[3/4] overflow-hidden bg-white border border-black/5 relative mb-6">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.name} 
-                    className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1 px-1">
-                  <h3 className="text-[11px] font-bold uppercase tracking-widest">{item.name}</h3>
-                  <div className="flex justify-between items-center opacity-40">
-                    <span className="text-[9px] uppercase tracking-tighter font-medium">{item.category}</span>
-                    <span className="text-[9px] uppercase tracking-widest font-bold">Public</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+      {/* Category Filter */}
+      <div className="max-w-7xl mx-auto flex gap-8 mb-12 overflow-x-auto pb-4 border-b border-black/5">
+        {categories.map((cat) => (
+          <button 
+            key={cat} 
+            onClick={() => setFilter(cat)}
+            className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap transition-all ${filter === cat ? 'opacity-100 border-b border-black' : 'opacity-30 hover:opacity-60'}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
-        {/* Empty State */}
-        {filteredItems.length === 0 && (
-          <div className="py-40 text-center border border-dashed border-black/10">
-            <p className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-30">No items found in this collection</p>
+      {/* Product Grid */}
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {publicItems.map((item) => (
+          <motion.div 
+            layoutId={`item-${item.id}`}
+            key={item.id}
+            onClick={() => setSelectedItem(item)}
+            className="group cursor-pointer"
+          >
+            <div className="aspect-[3/4] bg-white border border-black/5 overflow-hidden mb-4 relative">
+              <img src={item.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="" />
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="bg-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest mb-1">{item.name}</h3>
+            <p className="text-[9px] opacity-40 uppercase font-bold">{item.brand}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* --- ITEM DETAIL MODAL --- */}
+      <AnimatePresence>
+        {selectedItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={() => setSelectedItem(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div layoutId={`item-${selectedItem.id}`} className="relative bg-white w-full max-w-4xl h-[70vh] flex shadow-2xl overflow-hidden">
+              <div className="flex-1 bg-neutral-50 overflow-hidden flex items-center justify-center">
+                <img src={selectedItem.image} className="w-full h-full object-cover" />
+              </div>
+              <div className="w-96 p-12 flex flex-col">
+                <div className="flex justify-between items-start mb-12">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-2">{selectedItem.brand}</p>
+                    <h2 className="text-3xl editorial-font italic leading-none">{selectedItem.name}</h2>
+                  </div>
+                  <button onClick={() => setSelectedItem(null)}><X size={20}/></button>
+                </div>
+                
+                <div className="space-y-8 flex-grow">
+                   <div className="flex items-center justify-between py-4 border-y border-black/5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Uploader</span>
+                      <span onClick={() => navigate('/profile')} className="text-[10px] font-bold uppercase tracking-widest cursor-pointer hover:underline">{selectedItem.uploader}</span>
+                   </div>
+                   <p className="text-sm font-light italic opacity-60">This piece is a staple in a modern capsule wardrobe. Features high-quality finishing and a timeless fit.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button className="py-4 bg-black text-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90">
+                    <ShoppingBag size={14}/> Save to Mine
+                  </button>
+                  <button onClick={() => navigate('/lab')} className="py-4 border border-black text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-all">
+                    <Scissors size={14}/> Style
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };
