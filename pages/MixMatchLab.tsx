@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Download, Save, RotateCcw, Plus, MousePointer2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Since we are restoring the original, I'm using the structure you provided
 const MOCK_ITEMS = [
   { id: '1', name: 'White Tee', imageUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400', category: 'TOPS' },
   { id: '2', name: 'Denim', imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400', category: 'BOTTOMS' },
@@ -13,6 +12,7 @@ const MOCK_ITEMS = [
 
 const MixMatchLab: React.FC = () => {
   const navigate = useNavigate();
+  // Keep the state exactly as you have it
   const [canvasItems, setCanvasItems] = useState<{ id: string, item: any, x: number, y: number }[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const constraintsRef = useRef(null);
@@ -21,8 +21,9 @@ const MixMatchLab: React.FC = () => {
     setCanvasItems([...canvasItems, { 
       id: Math.random().toString(36).substr(2, 9),
       item,
-      x: 0,
-      y: 0
+      // We set a slightly varied starting point so they don't stack perfectly
+      x: Math.random() * 50, 
+      y: Math.random() * 50
     }]);
   };
 
@@ -43,7 +44,7 @@ const MixMatchLab: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-80px)] flex overflow-hidden bg-white">
-      {/* Sidebar - Item Selector (Restored to original style) */}
+      {/* Sidebar - NO CHANGES */}
       <aside className="w-80 bg-white border-r border-black/5 flex flex-col">
         <div className="p-6 border-b border-black/5">
           <h2 className="text-xl editorial-font italic mb-2">My Wardrobe</h2>
@@ -65,9 +66,9 @@ const MixMatchLab: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Workspace Canvas (Restored to #fcfcf0 theme) */}
+      {/* Main Workspace Canvas */}
       <main className="flex-1 relative bg-[#fcfcf0] canvas-bg overflow-hidden flex flex-col">
-        {/* Canvas Toolbar (Restored to floating white pills) */}
+        {/* Toolbar - NO CHANGES */}
         <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-20">
           <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full border border-black/5 shadow-sm">
             <button onClick={clearCanvas} className="p-2 hover:bg-neutral-100 rounded-full transition-colors text-neutral-500" title="Reset Canvas">
@@ -80,10 +81,7 @@ const MixMatchLab: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-3">
-             <button 
-              onClick={handleExport}
-              className="flex items-center space-x-2 px-6 py-2.5 bg-white text-black border border-black/10 rounded-full text-sm font-medium hover:bg-neutral-50 transition-all"
-            >
+             <button onClick={handleExport} className="flex items-center space-x-2 px-6 py-2.5 bg-white text-black border border-black/10 rounded-full text-sm font-medium hover:bg-neutral-50 transition-all">
               <Download size={16} />
               <span>Export</span>
             </button>
@@ -98,7 +96,7 @@ const MixMatchLab: React.FC = () => {
           </div>
         </div>
 
-        {/* The Drag Area */}
+        {/* The Drag Area - FIXED DRAG LOGIC */}
         <div ref={constraintsRef} className="flex-1 w-full h-full relative cursor-crosshair">
           {canvasItems.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center flex-col text-neutral-300 pointer-events-none">
@@ -113,30 +111,31 @@ const MixMatchLab: React.FC = () => {
               drag
               dragConstraints={constraintsRef}
               dragMomentum={false}
-              className="absolute w-64 h-64 cursor-move active:scale-105 transition-transform duration-200"
-              style={{ left: '35%', top: '25%' }}
+              // Changed 'style' to 'initial' and 'animate' for Framer Motion to track position properly
+              initial={{ x: ci.x + 300, y: ci.y + 200 }} 
+              className="absolute w-64 h-64 cursor-grab active:cursor-grabbing z-10"
             >
-              <div className="relative group">
+              <div className="relative group p-4">
                 <img 
                   src={ci.item.imageUrl} 
                   alt={ci.item.name} 
-                  className="w-full h-full object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.2)]" 
+                  className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)] pointer-events-none" 
                 />
                 <button 
                    onClick={(e) => {
-                     e.stopPropagation(); // Prevents drag when clicking X
+                     e.stopPropagation();
                      setCanvasItems(canvasItems.filter(i => i.id !== ci.id));
                    }}
-                   className="absolute -top-2 -right-2 w-8 h-8 bg-white border border-black text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50"
+                   className="absolute top-2 right-2 w-8 h-8 bg-white border border-black text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 hover:bg-black hover:text-white"
                 >
-                   <X size={16} />
+                   <X size={14} />
                 </button>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Footer Info (Restored original style) */}
+        {/* Footer Info - NO CHANGES */}
         <div className="p-6 text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 flex items-center justify-center space-x-8">
             <span>Pieces: {canvasItems.length}</span>
             <span>Ratio: 4:5 (Standard Fit Pic)</span>
