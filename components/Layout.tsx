@@ -5,10 +5,12 @@ import { Sparkles, ShoppingBag, LayoutGrid, User } from 'lucide-react';
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   
-  // LOGIC: Check if we are on the landing page
+  // HIDE links if we are on Landing OR Auth page to prevent unauthorized access
+  const isPublicPage = location.pathname === '/' || location.pathname === '/auth';
   const isLandingPage = location.pathname === '/';
 
   const navItems = [
+    { name: 'Profile', path: '/profile', icon: User },
     { name: 'Feed', path: '/feed', icon: Sparkles },
     { name: 'Wardrobe', path: '/wardrobe', icon: ShoppingBag },
     { name: 'Studio', path: '/lab', icon: LayoutGrid },
@@ -20,13 +22,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <header className="fixed top-0 w-full bg-[#F5F5DC]/90 backdrop-blur-md z-50 border-b border-black/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* Logo */}
+          {/* Logo - Always visible */}
           <Link to="/" className="text-2xl editorial-font font-bold tracking-tighter">
             WARDROBE HUB
           </Link>
 
-          {/* HIDE NAV LINKS ON LANDING PAGE */}
-          {!isLandingPage && (
+          {/* NAV LINKS: Only show if NOT on a public page (Landing or Auth) */}
+          {!isPublicPage && (
             <nav className="hidden md:flex items-center space-x-12 text-[10px] font-bold uppercase tracking-widest">
               {navItems.map((item) => (
                 <Link
@@ -44,13 +46,24 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
           {/* Right Side Action */}
           <div className="flex items-center gap-4">
-            <Link 
-              to="/auth" 
-              className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity flex items-center gap-2"
-            >
-              {!isLandingPage && <User size={14} />}
-              {isLandingPage ? 'Enter App' : 'Account'}
-            </Link>
+            {/* Show "Enter App" only on the Landing Page. Hide completely on the Auth page. */}
+            {isLandingPage ? (
+              <Link 
+                to="/auth" 
+                className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity"
+              >
+                Enter App
+              </Link>
+            ) : !isPublicPage ? (
+              /* Show "Account" icon only when logged in (not on public pages) */
+              <Link 
+                to="/profile" 
+                className="text-[10px] font-bold uppercase tracking-[0.2em] border-b border-black pb-1 hover:opacity-50 transition-opacity flex items-center gap-2"
+              >
+                <User size={14} />
+                Account
+              </Link>
+            ) : null}
           </div>
         </div>
       </header>

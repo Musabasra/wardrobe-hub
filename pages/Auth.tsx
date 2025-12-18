@@ -17,7 +17,7 @@ const Auth: React.FC = () => {
     setTimeout(() => {
       setLoading(false);
       // IMPORTANT: This line tells the browser to go to the wardrobe page
-      navigate('/wardrobe'); 
+      navigate('/profile');
     }, 1000);
   };
 

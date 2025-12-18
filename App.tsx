@@ -6,6 +6,7 @@ import Feed from './pages/Feed';
 import Wardrobe from './pages/Wardrobe';
 import MixMatchLab from './pages/MixMatchLab';
 import Auth from './pages/Auth';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/wardrobe" element={<ProtectedRoute><Wardrobe /></ProtectedRoute>} />
           <Route path="/lab" element={<ProtectedRoute><MixMatchLab /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         </Routes>
       </Layout>
     </Router>
