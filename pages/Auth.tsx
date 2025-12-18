@@ -8,14 +8,17 @@ const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleAuth = (e: React.FormEvent) => {
-    e.preventDefault();
+  // This function handles the "Login" or "Create Account" click
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault(); // Prevents the page from refreshing
     setLoading(true);
-    // Simulating a login delay for realism
+
+    // Simulate a network request
     setTimeout(() => {
       setLoading(false);
-      navigate('/wardrobe'); // Redirects to wardrobe after "login"
-    }, 1500);
+      // IMPORTANT: This line tells the browser to go to the wardrobe page
+      navigate('/wardrobe'); 
+    }, 1000);
   };
 
   return (
@@ -25,13 +28,6 @@ const Auth: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-[480px] bg-white border border-black/5 p-12 shadow-sm relative"
       >
-        {/* Editorial Branding */}
-        <div className="absolute -top-12 left-0">
-          <span className="editorial-font italic text-6xl text-black/5 select-none uppercase tracking-tighter">
-            {isLogin ? 'Identity' : 'Registration'}
-          </span>
-        </div>
-
         <div className="mb-12">
           <h2 className="text-5xl editorial-font italic tracking-tighter mb-4">
             {isLogin ? 'Welcome Back.' : 'Create Account.'}
@@ -44,7 +40,8 @@ const Auth: React.FC = () => {
           </div>
         </div>
 
-        <form className="space-y-8" onSubmit={handleAuth}>
+        {/* Change: Added onSubmit={handleSubmit} to the form */}
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <AnimatePresence mode="wait">
             {!isLogin && (
               <motion.div
@@ -94,28 +91,16 @@ const Auth: React.FC = () => {
 
           <button 
             type="submit"
-            disabled={loading}
-            className="w-full py-6 bg-black text-white text-[10px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:opacity-90 transition-all shadow-xl shadow-black/10 disabled:opacity-50"
+            className="w-full py-6 bg-black text-white text-[10px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:opacity-90 transition-all shadow-xl shadow-black/10"
           >
             {loading ? 'Authenticating...' : (isLogin ? 'Sign In' : 'Join Now')}
             {!loading && <ArrowRight size={14} />}
           </button>
         </form>
 
-        <div className="mt-12 space-y-6">
-          <div className="relative flex items-center justify-center">
-            <div className="w-full h-[1px] bg-black/5"></div>
-            <span className="absolute bg-white px-4 text-[9px] uppercase tracking-widest font-bold opacity-30">Or Continue With</span>
-          </div>
-
-          <button className="w-full py-4 border border-black/10 flex items-center justify-center gap-3 hover:bg-black hover:text-white transition-all text-xs font-bold uppercase tracking-widest">
-            <Github size={18} />
-            GitHub
-          </button>
-        </div>
-
         <div className="mt-10 text-center">
           <button 
+            type="button" // Change: marked as type="button" so it doesn't submit the form
             onClick={() => setIsLogin(!isLogin)}
             className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 hover:opacity-100 hover:border-b border-black transition-all pb-1"
           >
