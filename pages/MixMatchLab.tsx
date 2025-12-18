@@ -1,149 +1,201 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Download, Save, RotateCcw, Plus, MousePointer2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Trash2, 
+  Maximize, 
+  Minimize, 
+  RefreshCw, 
+  Download, 
+  Save, 
+  Plus, 
+  X, 
+  RotateCcw, 
+  Layers 
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const MOCK_ITEMS = [
-  { id: '1', name: 'White Tee', imageUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400', category: 'TOPS' },
-  { id: '2', name: 'Denim', imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400', category: 'BOTTOMS' },
-  { id: '3', name: 'Trench', imageUrl: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400', category: 'OUTERWEAR' },
-  { id: '4', name: 'Boots', imageUrl: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=400', category: 'SHOES' },
+  { id: '1', name: 'White Tee', category: 'Tops', imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400' },
+  { id: '2', name: 'Denim', category: 'Bottoms', imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400' },
+  { id: '3', name: 'Trench', category: 'Outerwear', imageUrl: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400' },
+  { id: '4', name: 'Boots', category: 'Shoes', imageUrl: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400' },
 ];
 
-const MixMatchLab: React.FC = () => {
+const Lab: React.FC = () => {
   const navigate = useNavigate();
-  // Keep the state exactly as you have it
-  const [canvasItems, setCanvasItems] = useState<{ id: string, item: any, x: number, y: number }[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const constraintsRef = useRef(null);
+  
+  const [canvasItems, setCanvasItems] = useState<any[]>([]);
+  const [nextZIndex, setNextZIndex] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const addToCanvas = (item: any) => {
-    setCanvasItems([...canvasItems, { 
-      id: Math.random().toString(36).substr(2, 9),
-      item,
-      // We set a slightly varied starting point so they don't stack perfectly
-      x: Math.random() * 50, 
-      y: Math.random() * 50
-    }]);
+  // 1. Add piece to board
+  const addToBoard = (item: any) => {
+    const newItem = {
+      ...item,
+      instanceId: Date.now(),
+      scale: 1,
+      zIndex: nextZIndex
+    };
+    setCanvasItems([...canvasItems, newItem]);
+    setNextZIndex(nextZIndex + 1);
   };
 
-  const clearCanvas = () => setCanvasItems([]);
+  // 2. Bring dragged item to front
+  const bringToFront = (instanceId: number) => {
+    setCanvasItems(prev => prev.map(item => 
+      item.instanceId === instanceId ? { ...item, zIndex: nextZIndex } : item
+    ));
+    setNextZIndex(nextZIndex + 1);
+  };
 
-  const handleExport = () => {
-    alert("GENERATING HIGH-RES EXPORT...");
+  // 3. Remove piece
+  const removeFromBoard = (instanceId: number) => {
+    setCanvasItems(canvasItems.filter(item => item.instanceId !== instanceId));
+  };
+
+  // 4. Update Scale
+  const updateScale = (instanceId: number, factor: number) => {
+    setCanvasItems(prev => prev.map(item => 
+      item.instanceId === instanceId ? { ...item, scale: Math.max(0.5, item.scale + factor) } : item
+    ));
+  };
+
+  const handleDownload = () => {
+    alert("Synthesizing high-resolution render... Your look is being downloaded.");
   };
 
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      alert("OUTFIT SAVED TO PROFILE GRID");
+      alert("Outfit archived! View it in your Profile.");
+      setCanvasItems([]); 
       navigate('/profile');
-    }, 1000);
+    }, 1500);
   };
 
   return (
-    <div className="h-[calc(100vh-80px)] flex overflow-hidden bg-white">
-      {/* Sidebar - NO CHANGES */}
-      <aside className="w-80 bg-white border-r border-black/5 flex flex-col">
-        <div className="p-6 border-b border-black/5">
-          <h2 className="text-xl editorial-font italic mb-2">My Wardrobe</h2>
-          <p className="text-xs text-neutral-400 font-light">Tap to add items to your workspace</p>
+    <div className="h-screen bg-[#F5F5DC] flex overflow-hidden">
+      
+      {/* SIDEBAR - Inventory */}
+      <aside className="w-80 border-r border-black/5 bg-white flex flex-col z-30 shadow-xl">
+        <div className="p-8 border-b border-black/5">
+          <h2 className="editorial-font italic text-3xl">The Lab.</h2>
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] opacity-40 mt-2">Select pieces to compose</p>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-4">
+        
+        <div className="flex-grow overflow-y-auto p-6 grid grid-cols-2 gap-4 no-scrollbar">
           {MOCK_ITEMS.map((item) => (
-            <button
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
               key={item.id}
-              onClick={() => addToCanvas(item)}
-              className="group text-left"
+              onClick={() => addToBoard(item)}
+              className="group cursor-pointer"
             >
-              <div className="aspect-square rounded-lg bg-neutral-100 overflow-hidden mb-2 border border-transparent group-hover:border-black/10 transition-all">
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+              <div className="aspect-[3/4] bg-[#F5F5DC] border border-black/5 overflow-hidden relative mb-2 transition-all group-hover:border-black">
+                <img src={item.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt={item.name} />
+                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <Plus className="text-black" size={20} />
+                </div>
               </div>
-              <p className="text-[10px] uppercase font-bold tracking-widest text-neutral-400">{item.name}</p>
-            </button>
+              <p className="text-[9px] uppercase font-bold tracking-widest">{item.name}</p>
+              <p className="text-[8px] uppercase opacity-30">{item.category}</p>
+            </motion.div>
           ))}
         </div>
       </aside>
 
-      {/* Main Workspace Canvas */}
-      <main className="flex-1 relative bg-[#fcfcf0] canvas-bg overflow-hidden flex flex-col">
-        {/* Toolbar - NO CHANGES */}
-        <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-20">
-          <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-md p-1.5 rounded-full border border-black/5 shadow-sm">
-            <button onClick={clearCanvas} className="p-2 hover:bg-neutral-100 rounded-full transition-colors text-neutral-500" title="Reset Canvas">
-              <RotateCcw size={18} />
-            </button>
-            <div className="w-[1px] h-4 bg-black/10 mx-1" />
-            <button className="p-2 bg-black text-white rounded-full shadow-lg" title="Select Tool">
-              <MousePointer2 size={18} />
-            </button>
-          </div>
+      {/* MAIN STUDIO BOARD */}
+      <main className="flex-1 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/paper.png')] flex flex-col">
+        
+        {/* Interaction Canvas */}
+        <div ref={constraintsRef} className="flex-1 relative w-full h-full p-20">
+          <AnimatePresence>
+            {canvasItems.length === 0 && (
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 0.1 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              >
+                <h1 className="text-[10vw] editorial-font italic tracking-tighter">Creation</h1>
+              </motion.div>
+            )}
 
-          <div className="flex items-center space-x-3">
-             <button onClick={handleExport} className="flex items-center space-x-2 px-6 py-2.5 bg-white text-black border border-black/10 rounded-full text-sm font-medium hover:bg-neutral-50 transition-all">
-              <Download size={16} />
-              <span>Export</span>
+            {canvasItems.map((item) => (
+              <motion.div
+                key={item.instanceId}
+                drag
+                dragConstraints={constraintsRef}
+                dragMomentum={false}
+                onDragStart={() => bringToFront(item.instanceId)}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: item.scale }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="absolute cursor-grab active:cursor-grabbing group"
+                style={{ zIndex: item.zIndex, left: '30%', top: '25%' }}
+              >
+                <div className="relative p-4 group-hover:outline group-hover:outline-1 group-hover:outline-black/20 transition-all">
+                  <img 
+                    src={item.imageUrl} 
+                    className="w-64 h-auto pointer-events-none drop-shadow-2xl"
+                    draggable="false"
+                  />
+                  
+                  {/* Controls - Visible on Hover */}
+                  <div className="absolute -right-10 top-0 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => updateScale(item.instanceId, 0.1)} className="w-8 h-8 bg-black text-white flex items-center justify-center hover:scale-110 transition-transform"><Maximize size={12}/></button>
+                    <button onClick={() => updateScale(item.instanceId, -0.1)} className="w-8 h-8 bg-black text-white flex items-center justify-center hover:scale-110 transition-transform"><Minimize size={12}/></button>
+                    <button onClick={() => removeFromBoard(item.instanceId)} className="w-8 h-8 bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform"><Trash2 size={12}/></button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* BOTTOM TOOLBAR */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white border border-black/10 px-10 py-5 flex items-center gap-12 shadow-2xl rounded-sm">
+          <div className="flex flex-col items-center">
+            <span className="text-[18px] font-bold tracking-tighter leading-none">{canvasItems.length}</span>
+            <span className="text-[8px] uppercase font-bold opacity-30 tracking-widest mt-1">Items</span>
+          </div>
+          
+          <div className="h-8 w-[1px] bg-black/10" />
+
+          <div className="flex gap-8">
+            <button onClick={() => setCanvasItems([])} className="flex flex-col items-center gap-1 group">
+              <RotateCcw size={18} className="opacity-40 group-hover:opacity-100 transition-all group-active:rotate-180" />
+              <span className="text-[8px] uppercase font-bold tracking-widest">Reset</span>
             </button>
-            <button 
-              onClick={handleSave}
-              disabled={isSaving}
-              className={`flex items-center space-x-2 px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-all shadow-xl ${isSaving ? 'opacity-50' : ''}`}
-            >
-              <Save size={16} />
-              <span>{isSaving ? 'Archiving...' : 'Save Outfit'}</span>
+
+            <button onClick={handleDownload} className="flex flex-col items-center gap-1 group">
+              <Download size={18} className="opacity-40 group-hover:opacity-100 transition-all" />
+              <span className="text-[8px] uppercase font-bold tracking-widest">Render</span>
+            </button>
+
+            <button onClick={handleSave} disabled={isSaving} className="flex flex-col items-center gap-1 group">
+              <Save size={18} className={`${isSaving ? 'animate-pulse text-blue-500' : 'opacity-100 text-black'}`} />
+              <span className="text-[8px] uppercase font-bold tracking-widest">Archive</span>
             </button>
           </div>
         </div>
 
-        {/* The Drag Area - FIXED DRAG LOGIC */}
-        <div ref={constraintsRef} className="flex-1 w-full h-full relative cursor-crosshair">
-          {canvasItems.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center flex-col text-neutral-300 pointer-events-none">
-              <Plus size={48} strokeWidth={1} className="mb-4" />
-              <p className="editorial-font italic text-2xl">Start your creation</p>
-            </div>
-          )}
-
-          {canvasItems.map((ci) => (
-            <motion.div
-              key={ci.id}
-              drag
-              dragConstraints={constraintsRef}
-              dragMomentum={false}
-              // Changed 'style' to 'initial' and 'animate' for Framer Motion to track position properly
-              initial={{ x: ci.x + 300, y: ci.y + 200 }} 
-              className="absolute w-64 h-64 cursor-grab active:cursor-grabbing z-10"
-            >
-              <div className="relative group p-4">
-                <img 
-                  src={ci.item.imageUrl} 
-                  alt={ci.item.name} 
-                  className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)] pointer-events-none" 
-                />
-                <button 
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     setCanvasItems(canvasItems.filter(i => i.id !== ci.id));
-                   }}
-                   className="absolute top-2 right-2 w-8 h-8 bg-white border border-black text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-50 hover:bg-black hover:text-white"
-                >
-                   <X size={14} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Footer Info - NO CHANGES */}
-        <div className="p-6 text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 flex items-center justify-center space-x-8">
-            <span>Pieces: {canvasItems.length}</span>
-            <span>Ratio: 4:5 (Standard Fit Pic)</span>
-            <span>Canvas: Layered PNGs</span>
+        {/* Footer Detail */}
+        <div className="absolute bottom-8 left-10 flex items-center gap-3 opacity-30 text-[9px] font-bold uppercase tracking-[0.2em]">
+          <Layers size={12} />
+          <span>Layered Studio Mode</span>
         </div>
       </main>
+
+      {/* Close Button */}
+      <button 
+        onClick={() => navigate('/feed')}
+        className="absolute top-8 right-8 w-12 h-12 bg-white border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all z-50"
+      >
+        <X size={20} />
+      </button>
     </div>
   );
 };
 
-export default MixMatchLab;
+export default Lab;
