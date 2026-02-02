@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabaseClient';
+import { useEffect } from 'react'; // Add useEffect to the existing React import
 import { 
   Trash2, 
   Maximize, 
@@ -14,17 +16,28 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const MOCK_ITEMS = [
-  { id: '1', name: 'White Tee', category: 'Tops', imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400' },
-  { id: '2', name: 'Denim', category: 'Bottoms', imageUrl: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400' },
-  { id: '3', name: 'Trench', category: 'Outerwear', imageUrl: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400' },
-  { id: '4', name: 'Boots', category: 'Shoes', imageUrl: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=400' },
-];
+
 
 const Lab: React.FC = () => {
   const navigate = useNavigate();
   const constraintsRef = useRef(null);
-  
+  const [inventory, setInventory] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchWardrobe();
+  }, []);
+
+  const fetchWardrobe = async () => {
+    const { data, error } = await supabase
+      .from('wardrobe_items')
+      .select('*');
+    
+    if (error) {
+      console.error('Error fetching wardrobe:', error);
+    } else {
+      setInventory(data || []);
+    }
+  };
   const [canvasItems, setCanvasItems] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
@@ -86,7 +99,7 @@ const Lab: React.FC = () => {
         </div>
         
         <div className="flex-grow overflow-y-auto p-6 grid grid-cols-2 gap-4 no-scrollbar">
-          {MOCK_ITEMS.map((item) => (
+          {inventory.map((item) => (
             <motion.div 
               whileHover={{ scale: 1.02 }}
               key={item.id}
