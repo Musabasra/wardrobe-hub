@@ -338,23 +338,48 @@ if (!authUser) {
           </div>
         )}
 
+       {/* 4. Settings Modal */}
         {isSettingsOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsSettingsOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="relative bg-white w-full max-w-sm overflow-hidden">
-              <div className="p-8 border-b border-black/5 flex justify-between items-center"><h2 className="text-[12px] font-bold uppercase tracking-[0.2em]">Settings</h2><button onClick={() => setIsSettingsOpen(false)}><X size={18}/></button></div>
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setIsSettingsOpen(false)} 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ y: 50, opacity: 0 }} 
+              animate={{ y: 0, opacity: 1 }} 
+              exit={{ y: 50, opacity: 0 }} 
+              className="relative bg-white w-full max-w-sm overflow-hidden"
+            >
+              <div className="p-8 border-b border-black/5 flex justify-between items-center">
+                <h2 className="text-[12px] font-bold uppercase tracking-[0.2em]">Settings</h2>
+                <button onClick={() => setIsSettingsOpen(false)}><X size={18}/></button>
+              </div>
               <div className="p-2">
-                <button className="w-full flex items-center gap-4 p-4 hover:bg-neutral-50 transition-colors text-sm"><Shield size={18} className="opacity-40"/> Privacy & Safety</button>
-                <button className="w-full flex items-center gap-4 p-4 hover:bg-neutral-50 transition-colors text-sm"><Bell size={18} className="opacity-40"/> Notifications</button>
+                <button className="w-full flex items-center gap-4 p-4 hover:bg-neutral-50 transition-colors text-sm">
+                  <Shield size={18} className="opacity-40"/> Privacy & Safety
+                </button>
+                <button className="w-full flex items-center gap-4 p-4 hover:bg-neutral-50 transition-colors text-sm">
+                  <Bell size={18} className="opacity-40"/> Notifications
+                </button>
                 <div className="h-[1px] bg-black/5 my-2" />
-                <button onClick={() => navigate('/auth')} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 transition-colors text-sm text-red-500 font-bold uppercase tracking-widest text-[10px]"><LogOut size={18}/> Log Out</button>
+                <button 
+                  onClick={() => navigate('/auth')} 
+                  className="w-full flex items-center gap-4 p-4 hover:bg-red-50 transition-colors text-sm text-red-500 font-bold uppercase tracking-widest text-[10px]"
+                >
+                  <LogOut size={18}/> Log Out
+                </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
     </div>
   </div>
-);
+  ); // This closes the return (
+}; // This closes the const Profile = () => {
+
 export default Profile;
