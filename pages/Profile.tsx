@@ -1,21 +1,70 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; // Added useEffect
+import { supabase } from '../lib/supabaseClient'; // Added Supabase
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Grid, Bookmark, Tag, X, LogOut, Shield, Bell, Camera, UserPlus, Heart, MessageCircle, ShoppingBag, Scissors } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Profile: React.FC = () => {
+
+  // --- PROFILE STATE ---
+  const Profile: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- PROFILE STATE ---
+  // 1. We start with a "Loading" state
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({
-    handle: 'your_handle',
+    id: '',
+    handle: 'loading...',
     displayName: 'Identity Name',
-    bio: 'Curating a timeless capsule wardrobe. Focused on sustainable textures and monochrome silhouettes.',
-    profilePic: 'https://i.pravatar.cc/150?u=me',
-    followersCount: 450,
-    followingCount: 280
+    bio: '',
+    profilePic: 'https://i.pravatar.cc/150?u=placeholder',
+    followersCount: 0,
+    followingCount: 0
   });
+
+  // 2. The "Fetch" function
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      
+      // Get the currently logged-in user's ID
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+if (!authUser) {
+  setLoading(false); // Stop the loading animation
+  // Optional: navigate('/auth'); // Send them to login if you have that page ready
+  return; 
+}
+      if (authUser) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setUser({
+            id: data.id,
+            handle: data.username || 'username',
+            displayName: data.full_name || 'Designer',
+            bio: data.bio || 'No bio yet.',
+            profilePic: data.avatar_url || 'https://i.pravatar.cc/150?u=placeholder',
+            followersCount: 0, // We'll link these to the 'follows' table later
+            followingCount: 0
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // UPDATED: Added 'pieces' to the activeTab type
   const [activeTab, setActiveTab] = useState<'fits' | 'saved' | 'tagged' | 'pieces'>('fits');
@@ -49,71 +98,85 @@ const Profile: React.FC = () => {
     }
   };
 
-  const saveProfileChanges = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    setUser({
-      ...user,
-      displayName: formData.get('displayName') as string,
-      bio: formData.get('bio') as string,
-    });
-    setIsEditOpen(false);
-  };
+  const saveProfileChanges = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const newName = formData.get('displayName') as string;
+  const newBio = formData.get('bio') as string;
 
+  const { error } = await supabase
+    .from('profiles')
+    .update({ 
+      full_name: newName, 
+      bio: newBio 
+    })
+    .eq('id', user.id);
+
+  if (!error) {
+    setUser({ ...user, displayName: newName, bio: newBio });
+    setIsEditOpen(false);
+  } else {
+    alert("Error updating profile!");
+  }
+};
   return (
     <div className="bg-[#F5F5DC] min-h-screen pt-12 pb-20">
       <div className="max-w-4xl mx-auto px-6">
         
-        {/* Profile Header */}
-        <header className="flex flex-col md:flex-row items-center gap-12 mb-16 border-b border-black/5 pb-16">
-          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-40 h-40 rounded-full border border-black/10 p-1 flex-shrink-0 overflow-hidden bg-white">
-              <img src={user.profilePic} className="w-full h-full rounded-full grayscale object-cover" alt="Profile" />
-            </div>
-            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <Camera className="text-white" size={24} />
-            </div>
-            <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
+        {/* Profile Header - Logic correctly applied here */}
+        {loading ? (
+          <div className="flex justify-center py-40 animate-pulse uppercase tracking-[0.4em] text-[10px] font-bold opacity-40">
+            Accessing Identity Archive...
           </div>
-          
-          <div className="flex-1">
-            <div className="flex items-center gap-6 mb-4">
-              <h2 className="text-2xl font-bold tracking-tighter uppercase">@{user.handle}</h2>
-              <button onClick={() => setIsEditOpen(true)} className="px-6 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-80 transition-all">
-                Edit Profile
-              </button>
-              <button onClick={() => setIsSettingsOpen(true)} className="opacity-30 hover:opacity-100 transition-opacity">
-                <Settings size={20} />
-              </button>
-            </div>
-            
-            <h3 className="text-sm font-bold mb-2 uppercase tracking-tight">{user.displayName}</h3>
-            
-            <div className="flex gap-10 mb-6">
-              <div className="flex flex-col items-start">
-                <span className="font-bold text-lg">{posts.length}</span>
-                <span className="text-[10px] uppercase tracking-widest opacity-40">Pieces</span>
+        ) : (
+          <header className="flex flex-col md:flex-row items-center gap-12 mb-16 border-b border-black/5 pb-16">
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <div className="w-40 h-40 rounded-full border border-black/10 p-1 flex-shrink-0 overflow-hidden bg-white">
+                <img src={user.profilePic} className="w-full h-full rounded-full grayscale object-cover" alt="Profile" />
               </div>
-              <button onClick={() => setConnectionsModal({ open: true, type: 'Followers' })} className="flex flex-col items-start hover:opacity-60 transition-opacity">
-                <span className="font-bold text-lg">{user.followersCount}</span>
-                <span className="text-[10px] uppercase tracking-widest opacity-40">Followers</span>
-              </button>
-              <button onClick={() => setConnectionsModal({ open: true, type: 'Following' })} className="flex flex-col items-start hover:opacity-60 transition-opacity">
-                <span className="font-bold text-lg">{user.followingCount}</span>
-                <span className="text-[10px] uppercase tracking-widest opacity-40">Following</span>
-              </button>
+              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="text-white" size={24} />
+              </div>
+              <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
             </div>
             
-            <p className="text-sm font-light leading-relaxed max-w-md italic opacity-70 whitespace-pre-line">{user.bio}</p>
-          </div>
-        </header>
+            <div className="flex-1">
+              <div className="flex items-center gap-6 mb-4">
+                <h2 className="text-2xl font-bold tracking-tighter uppercase">@{user.handle}</h2>
+                <button onClick={() => setIsEditOpen(true)} className="px-6 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-80 transition-all">
+                  Edit Profile
+                </button>
+                <button onClick={() => setIsSettingsOpen(true)} className="opacity-30 hover:opacity-100 transition-opacity">
+                  <Settings size={20} />
+                </button>
+              </div>
+              
+              <h3 className="text-sm font-bold mb-2 uppercase tracking-tight">{user.displayName}</h3>
+              
+              <div className="flex gap-10 mb-6">
+                <div className="flex flex-col items-start">
+                  <span className="font-bold text-lg">{posts.length}</span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-40">Pieces</span>
+                </div>
+                <button onClick={() => setConnectionsModal({ open: true, type: 'Followers' })} className="flex flex-col items-start hover:opacity-60 transition-opacity">
+                  <span className="font-bold text-lg">{user.followersCount}</span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-40">Followers</span>
+                </button>
+                <button onClick={() => setConnectionsModal({ open: true, type: 'Following' })} className="flex flex-col items-start hover:opacity-60 transition-opacity">
+                  <span className="font-bold text-lg">{user.followingCount}</span>
+                  <span className="text-[10px] uppercase tracking-widest opacity-40">Following</span>
+                </button>
+              </div>
+              
+              <p className="text-sm font-light leading-relaxed max-w-md italic opacity-70 whitespace-pre-line">{user.bio}</p>
+            </div>
+          </header>
+        )}
 
-        {/* Navigation Tabs - ADDED "My Pieces" */}
+        {/* Navigation Tabs - Stays outside the loading check */}
         <div className="flex justify-center gap-16 mb-12 border-t border-black/5 pt-4">
           <button onClick={() => setActiveTab('fits')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'fits' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Grid size={14} /> My Fits</button>
-          
           <button onClick={() => setActiveTab('pieces')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'pieces' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><ShoppingBag size={14} /> My Pieces</button>
-
           <button onClick={() => setActiveTab('saved')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'saved' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Bookmark size={14} /> Saved</button>
           <button onClick={() => setActiveTab('tagged')} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all pb-4 border-b ${activeTab === 'tagged' ? 'border-black opacity-100' : 'border-transparent opacity-30 hover:opacity-60'}`}><Tag size={14} /> Tagged</button>
         </div>
@@ -154,6 +217,12 @@ const Profile: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* --- ALL MODALS --- */}
+      {/* ... (Keep your modals exactly as they are) ... */}
+
+    </div>
+  );
 
       {/* --- ALL MODALS --- */}
 
