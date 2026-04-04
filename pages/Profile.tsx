@@ -323,6 +323,6 @@ if (!authUser) {
        )}
    
   );
-);
+  
 
 export default Profile;
