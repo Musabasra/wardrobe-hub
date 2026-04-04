@@ -320,10 +320,9 @@ if (!authUser) {
               </div>
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
-    </div>
+       )}
+   
   );
-};
+);
 
 export default Profile;
